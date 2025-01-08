@@ -1,0 +1,11 @@
+
+port: 4321
+address: "0.0.0.0"
+storage_path: "/some/path"
+psw_secret: secret
+db_mongo_uri: mongodb://localhost:27017
+db_redis_uri: "..."
+jwt_secret: secret
+jwt_epoch: 1
+cors_allowed_hosts:
+  - "https://example.com"

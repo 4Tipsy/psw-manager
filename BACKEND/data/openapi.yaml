@@ -1,0 +1,439 @@
+openapi: '3.0.0'
+info:
+  title: PswManager API
+  version: '0.1.0'
+  description:
+    The Smartylighting Streetlights API allows you to remotely manage the city lights.
+
+
+
+
+
+
+
+paths:
+
+  /user-serv/create-new-user:
+    post:
+      summary: "create-new-user"
+      tags:
+        - user-serv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserDTO'
+
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /user-serv/get-current-user:
+    get:
+      summary: "get-current-user"
+      description: "*With auth"
+      tags:
+        - user-serv
+      responses:
+        200:
+          description: "on success"
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+    
+
+  /user-serv/login:
+    post:
+      summary: "login"
+      tags:
+        - user-serv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_email
+                - user_password
+              properties:
+                user_email:
+                  type: string
+                user_password:
+                  type: string
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /user-serv/get-user-image:
+    get:
+      summary: "get-user-image"
+      description: "*With auth"
+      tags:
+        - user-serv
+      responses:
+        200:
+          description: "on success"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                example: "binary"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /user-serv/update-user-image:
+    post:
+      summary: "get-user-image"
+      description: "*With auth"
+      tags:
+        - user-serv
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - File
+              properties:
+                File:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /record-serv/create-new-record:
+    post:
+      summary: "create-new-record"
+      description: "*With auth"
+      tags:
+        - record-serv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPswRecordDTO'
+
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /record-serv/patch-record:
+    patch:
+      summary: "create-new-record"
+      description: "*With auth"
+      tags:
+        - record-serv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PswRecord'
+
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /record-serv/delete-record:
+    delete:
+      summary: "delete-record"
+      description: "*With auth"
+      tags:
+        - record-serv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - target_id
+              properties:
+                target_id:
+                  type: string
+      responses:
+        200:
+          description: "on success"
+          content:
+            text/plain:
+              example: "ok"
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /record-serv/get-records:
+    get:
+      summary: "get-records (all)"
+      description: "*With auth"
+      tags:
+        - record-serv
+      responses:
+        200:
+          description: "on success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PswRecord'
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /record-serv/get-records/{target_id}:
+    get:
+      summary: "get-records (single)"
+      description: "*With auth"
+      tags:
+        - record-serv
+      parameters:
+        - name: target_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "on success"
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/PswRecord'
+        4xx:
+          description: "on error"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - err
+                properties:
+                  err:
+                    type: string
+
+
+  /static-serv/openapi.yaml:
+    get:
+      summary: "openapi_yaml"
+      tags:
+        - static-serv
+      responses:
+        200:
+          description: "on success"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                example: "binary"
+
+
+
+
+
+
+
+components:
+  schemas:
+
+    NewUserDTO:
+      type: object
+      required:
+        - user_name
+        - user_email
+        - password
+      properties:
+        user_name:
+          type: string
+        user_email:
+          type: string
+        password:
+          type: string
+
+    UserDTO:
+      type: object
+      required:
+        - user_id
+        - user_name
+        - user_email
+        - verified
+      properties:
+        user_id:
+          type: string
+        user_name:
+          type: string
+        user_email:
+          type: string
+        hashed_password:
+          type: string
+
+    NewPswRecordDTO:
+      type: object
+      required:
+        - app_name
+        - account_name
+        - encoded_login
+        - encoded_password
+        - tags
+      properties:
+        app_ico:
+          type: string
+        app_name:
+          type: string
+        account_name:
+          type: string
+        encoded_login:
+          type: string
+        encoded_password:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    PswRecord:
+      type: object
+      required:
+        - owner_id
+        - record_id
+        - account_name
+        - encoded_login
+        - encoded_password
+        - tags
+        - created_at
+      properties:
+        owner_id:
+          type: string
+        record_id:
+          type: string
+        app_ico:
+          type: string
+        app_name:
+          type: string
+        account_name:
+          type: string
+        encoded_login:
+          type: string
+        encoded_password:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
