@@ -12,7 +12,7 @@ use crate::guards::AuthGuard::AuthGuard;
 use crate::models::PswRecord::{NewPswRecordDTO, PswRecord};
 use crate::models::HttpException::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
-use crate::ConfigModel;
+use crate::config::ConfigModel;
 
 
 

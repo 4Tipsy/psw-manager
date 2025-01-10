@@ -1,5 +1,6 @@
 
 // _
+mod config;
 mod models;
 mod routes;
 mod services;
@@ -25,7 +26,8 @@ use crate::routes::UserRoutes;
 use crate::routes::PswRecordRoutes;
 use crate::routes::StaticRoutes;
 use crate::guards::CorsFairing;
-use crate::util::api_responses::ApiJsonResponse;
+use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
+use crate::config::{ConfigModel, load_config};
 
 
 
@@ -36,30 +38,16 @@ static ACCESS_TOKEN_LIVES: i64 = 24*30;
 
 
 
-// config
-#[derive(Debug, Deserialize)]
-pub struct ConfigModel {
-  pub port: i32,
-  pub address: String,
-  pub storage_path: String,
-  pub psw_secret: String,
-  pub db_mongo_uri: String,
-  pub db_redis_uri: String,
-  pub jwt_secret: String,
-  pub jwt_epoch: i32,
-  pub cors_allowed_hosts: Vec<String>,
-}
-
-
-
-
 
 
 
 // some catchers
 #[catch(404)]
-async fn handle_404() -> Status {
-  Status::NotFound
+async fn handle_404() -> ApiTextResponse {
+  ApiTextResponse {
+    status: Status::NotFound,
+    value: "Not found".to_string()
+  }
 }
 #[catch(500)]
 async fn handle_500() -> ApiJsonResponse {
@@ -88,8 +76,7 @@ async fn handle_401__AuthGuard() -> ApiJsonResponse {
 async fn launch() -> _ {
 
   // load config
-  let _config: String = fs::read_to_string("./Config.yaml").expect("Can not find or read 'Config.yaml'");
-  let config: ConfigModel = serde_yaml::from_str(&_config).expect("Invalid 'Config.yaml'");
+  let config: ConfigModel = load_config();
 
   // load database
   let mongo: Database = Client::with_uri_str( &config.db_mongo_uri )

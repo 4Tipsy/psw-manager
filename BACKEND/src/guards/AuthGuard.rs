@@ -16,7 +16,7 @@ use chrono;
 // modules
 use crate::models::User::User;
 use crate::models::Tokens::AccessToken;
-use crate::ConfigModel;
+use crate::config::ConfigModel;
 
 
 

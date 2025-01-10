@@ -5,7 +5,7 @@ use rocket::{Request, Response};
 use rocket::fairing::{Fairing, Info, Kind};
 
 // models
-use crate::ConfigModel;
+use crate::config::ConfigModel;
 
 
 

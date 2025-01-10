@@ -19,7 +19,7 @@ use crate::models::Tokens::{AccessToken};
 use crate::models::HttpException::HttpException;
 use crate::util::gen_simple_hash::gen_simple_hash;
 use crate::util::password_hasher::{hash_psw, verify_psw};
-use crate::ConfigModel;
+use crate::config::ConfigModel;
 use crate::ACCESS_TOKEN_LIVES;
 
 

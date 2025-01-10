@@ -203,7 +203,7 @@ paths:
 
   /record-serv/patch-record:
     patch:
-      summary: "create-new-record"
+      summary: "patch-record"
       description: "*With auth"
       tags:
         - record-serv
