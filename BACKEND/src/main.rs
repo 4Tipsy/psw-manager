@@ -14,11 +14,9 @@ use rocket::http::Status;
 use rocket::serde::json::json;
 use rocket::Config as RocketConfig;
 
-use serde::Deserialize;
-use serde_yaml;
-use mongodb::{Client, Database};
+use rocket::fs::{FileServer, Options as FileServerOptions};
 
-use std::fs;
+use mongodb::{Client, Database};
 
 
 // modules
@@ -92,7 +90,10 @@ async fn launch() -> _ {
       .join(("port", &config.port)) // set port
       .join(("address", &config.address)) // set address
     ))
-    .mount("/", routes![
+    .mount("/",
+      FileServer::new(&config.client_static_path, FileServerOptions::Index) // client static
+    )
+    .mount("/api/", routes![
       UserRoutes::create_new_user, UserRoutes::get_current_user, UserRoutes::login, UserRoutes::get_user_image, UserRoutes::update_user_image,
       PswRecordRoutes::create_new_record, PswRecordRoutes::patch_record, PswRecordRoutes::delete_record, PswRecordRoutes::get_all_records, PswRecordRoutes::get_single_record,
       StaticRoutes::send_docs_swagger, StaticRoutes::send_docs_redoc, StaticRoutes::send_openapi
