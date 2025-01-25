@@ -36,7 +36,7 @@
       .post( window.API_URL + '/__api__/user-serv/login' )
       .send( {"user_email": emailInput.value, "user_password": passwordInput.value} )
       .withCredentials()
-      .then((res) => {
+      .then(_ => {
         window.location.reload()
       })
       .catch((e: ResponseError) => {

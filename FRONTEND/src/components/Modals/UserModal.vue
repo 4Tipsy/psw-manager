@@ -35,7 +35,7 @@
       ///@ts-ignore
       .field('File', file)
       .withCredentials()
-      .then((res) => {
+      .then(_ => {
         window.location.reload()
       })
       .catch((e: ResponseError) => {

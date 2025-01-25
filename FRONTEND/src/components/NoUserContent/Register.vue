@@ -36,7 +36,7 @@
       .post( window.API_URL + '/__api__/user-serv/create-new-user' )
       .send( {"user_name": nameInput.value, "user_email": emailInput.value, "password": passwordInput.value} )
       .withCredentials()
-      .then((res) => {
+      .then(_ => {
         fetchResult.value = "[200] ok"
         alert("As email confirmation is not implemented, go and ask to verify account BY HANDS, lol ;)")
       })
