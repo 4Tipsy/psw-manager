@@ -1,0 +1,71 @@
+
+/*
+* Some global styles, tiny bit
+*/
+
+
+
+
+
+
+body {
+  margin: 0;
+  font-family: "Onest Regular";
+}
+
+
+/*
+* 650px -- mobile breakpoint
+*/
+
+
+
+/* global vars */
+
+:root {
+  --main-color-1: #B0CDBD;
+  --main-color-2: #E5EDE8;
+
+  --text-color-1: #64748B;
+  --text-color-2: #E1A76C;
+
+  --highlight-color-1: #64748B;
+  --highlight-color-2: #E1A76C;
+
+  --white-color: #F5F5F5;
+
+  --standard-box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+
+  --shading-color: rgba(0, 0, 0, 0.4);
+
+
+  /* other */
+  --content-width: 85%;
+}
+
+@media (max-width: 1550px) {
+  :root {
+    --content-width: 90%
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* font kit */
+@font-face {
+  font-family: "Onest Regular";
+  src: url("./assets/fonts/Onest/static/Onest-Regular.ttf");
+}
+@font-face {
+  font-family: "Onest Medium";
+  src: url("./assets/fonts/Onest/static/Onest-Medium.ttf");
+}

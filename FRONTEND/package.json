@@ -1,0 +1,35 @@
+{
+  "name": "psw-manager",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 1234 --host",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "clsx": "^2.1.1",
+    "colorjs.io": "^0.5.2",
+    "crypto-js": "^4.2.0",
+    "js-cookie": "^3.0.5",
+    "pinia": "^2.3.0",
+    "superagent": "^10.1.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/superagent": "^8.1.9",
+    "@types/vue": "^2.0.0",
+    "@types/vue-router": "^2.0.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "sass-embedded": "^1.83.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vite-svg-loader": "^5.1.0",
+    "vue-tsc": "^2.2.0"
+  }
+}
