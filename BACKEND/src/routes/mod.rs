@@ -1,4 +1,4 @@
 
-pub mod UserRoutes;
-pub mod PswRecordRoutes;
-pub mod StaticRoutes;
+pub mod user_routes;
+pub mod psw_record_routes;
+pub mod static_routes;

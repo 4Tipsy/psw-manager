@@ -9,9 +9,9 @@ use futures::TryStreamExt;
 use chrono;
 
 // modules
-use crate::models::User::User;
-use crate::models::PswRecord::{PswRecord, NewPswRecordDTO};
-use crate::models::HttpException::HttpException;
+use crate::models::user_model::User;
+use crate::models::psw_record_model::{PswRecord, NewPswRecordDTO};
+use crate::models::http_exception::HttpException;
 use crate::util::gen_simple_hash::gen_simple_hash;
 
 
@@ -76,6 +76,21 @@ pub async fn create_new_record(new_record: NewPswRecordDTO, user: User, mongo: &
 pub async fn path_record(patched_record: PswRecord, user: User, mongo: &State<Database>) -> Result<(), HttpException> {
 
   let record_collection = mongo.collection::<PswRecord>("pswRecords");
+
+
+  // validate patched record
+  if &patched_record.owner_id != &user.user_id {
+    return Err( HttpException {
+      status: Status::UnprocessableEntity,
+      message: "Field 'owner_id' is different from user's id".to_string()
+    });
+  }
+  if chrono::DateTime::parse_from_rfc2822( &patched_record.created_at ).is_err() {
+    return Err( HttpException {
+      status: Status::UnprocessableEntity,
+      message: "Field 'created_at' is not rfc2822 time".to_string()
+    });
+  }
 
 
   // check if such id valid

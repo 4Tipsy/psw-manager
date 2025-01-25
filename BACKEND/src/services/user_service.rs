@@ -14,9 +14,9 @@ use std::path::{Path, PathBuf};
 use std::fs;
 
 // modules
-use crate::models::User::{User, NewUserDTO, UserDTO};
-use crate::models::Tokens::{AccessToken};
-use crate::models::HttpException::HttpException;
+use crate::models::user_model::{User, NewUserDTO, UserDTO};
+use crate::models::tokens_models::{AccessToken};
+use crate::models::http_exception::HttpException;
 use crate::util::gen_simple_hash::gen_simple_hash;
 use crate::util::password_hasher::{hash_psw, verify_psw};
 use crate::config::ConfigModel;
@@ -64,8 +64,8 @@ pub async fn create_new_user(new_user: NewUserDTO, mongo: &State<Database>, conf
 
 
   // create user image in fs
-  let _img_file_name = "avatar_".to_owned() + &new_user_id;
-  let user_img_path = Path::new( &config.storage_path ).join( _img_file_name );
+  let _img_file_name = "avatar_".to_owned() + &new_user_id + ".jpg";
+  let user_img_path = Path::new( &config.storage_path ).join( &_img_file_name );
   let _ = fs::copy("./data/default_user_image.jpg", user_img_path);
 
 
@@ -75,6 +75,7 @@ pub async fn create_new_user(new_user: NewUserDTO, mongo: &State<Database>, conf
     user_name: new_user.user_name,
     user_email: new_user.user_email,
     hashed_password: hash_psw(&new_user.password, &config.psw_secret),
+    user_image: _img_file_name,
     verified: false,
   };
   let _ = user_collection.insert_one(ready_user).await.expect("Error while inserting");
@@ -150,6 +151,7 @@ pub async fn get_current_user(user: User) -> Result<UserDTO, HttpException> {
     user_id: user.user_id,
     user_name: user.user_name,
     user_email: user.user_email,
+    user_image: user.user_image,
     verified: user.verified
   })
 }
@@ -163,8 +165,7 @@ pub async fn get_current_user(user: User) -> Result<UserDTO, HttpException> {
 
 pub async fn get_user_image(user: User, config: &State<ConfigModel>) -> Result<PathBuf, HttpException> {
 
-  let img_file_name = "avatar_".to_owned() + &user.user_id;
-  let user_img_path = Path::new( &config.storage_path ).join( img_file_name );
+  let user_img_path = Path::new( &config.storage_path ).join( &user.user_image );
 
   return Ok(user_img_path);
 }
@@ -177,7 +178,7 @@ pub async fn get_user_image(user: User, config: &State<ConfigModel>) -> Result<P
 
 
 
-pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, config: &State<ConfigModel>) -> Result<(), HttpException> {
+pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<(), HttpException> {
 
   // if file is not image
   let content_type = file.content_type().unwrap_or(&ContentType::Plain).to_string();
@@ -189,8 +190,9 @@ pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, config:
   }
   
 
-  let img_file_name = "avatar_".to_owned() + &user.user_id;
-  let user_img_path = Path::new( &config.storage_path ).join( img_file_name );
+  let _e = ".".to_string() + &file.name().unwrap().split('.').last().unwrap_or("unknown"); // get file extension, returns ".ext"
+  let user_img_name = "avatar_".to_owned() + &user.user_id + &_e;
+  let user_img_path = Path::new( &config.storage_path ).join( &user_img_name );
 
   let _ = fs::remove_file(&user_img_path);
 
@@ -198,7 +200,13 @@ pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, config:
   match fs::copy(file.path().unwrap(), user_img_path) {
   /*match file.persist_to(user_img_path).await {*/ 
       
-      Ok(_) => { return Ok(()); },
+      Ok(_) => {
+        let _ = mongo.collection::<User>("users").find_one_and_update(
+          doc! {"user_id": &user.user_id},
+          doc! {"$set": doc! {"user_image": &user_img_name} }
+        ).await.unwrap();
+        return Ok(());
+      },
 
       Err(e) => {
         println!("{}", e);

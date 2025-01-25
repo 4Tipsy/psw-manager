@@ -12,10 +12,10 @@ use mongodb::Database;
 use std::path::PathBuf;
 
 // modules
-use crate::services::UserService;
-use crate::guards::AuthGuard::AuthGuard;
-use crate::models::User::{NewUserDTO, UserDTO};
-use crate::models::HttpException::HttpException;
+use crate::services::user_service;
+use crate::guards::auth_guard::AuthGuard;
+use crate::models::user_model::{NewUserDTO, UserDTO};
+use crate::models::http_exception::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
 use crate::config::ConfigModel;
 use crate::ACCESS_TOKEN_LIVES;
@@ -32,7 +32,7 @@ use crate::ACCESS_TOKEN_LIVES;
 #[post("/user-serv/create-new-user", data = "<req>")]
 pub async fn create_new_user(req: Json<NewUserDTO>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<(), HttpException> = UserService::create_new_user(
+  let r: Result<(), HttpException> = user_service::create_new_user(
     req.into_inner(),
     mongo,
     config
@@ -64,7 +64,7 @@ pub async fn create_new_user(req: Json<NewUserDTO>, mongo: &State<Database>, con
 #[get("/user-serv/get-current-user")]
 pub async fn get_current_user(auth_guard: AuthGuard) -> Result<ApiJsonResponse, ApiJsonResponse> {
 
-  let r: Result<UserDTO, HttpException> = UserService::get_current_user(auth_guard.value).await;
+  let r: Result<UserDTO, HttpException> = user_service::get_current_user(auth_guard.value).await;
 
   match r {
     Ok(u) => {
@@ -99,7 +99,7 @@ pub struct _LoginReq {
 #[post("/user-serv/login", data = "<req>")]
 pub async fn login(req: Json<_LoginReq>, jar: &CookieJar<'_>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<String, HttpException> = UserService::get_user_token(
+  let r: Result<String, HttpException> = user_service::get_user_token(
     &req.user_email,
     &req.user_password,
     mongo,
@@ -140,14 +140,14 @@ pub async fn login(req: Json<_LoginReq>, jar: &CookieJar<'_>, mongo: &State<Data
 #[get("/user-serv/get-user-image")]
 pub async fn get_user_image(auth_guard: AuthGuard, config: &State<ConfigModel>) -> Result<NamedFile, ApiJsonResponse> {
 
-  let r: Result<PathBuf, HttpException> = UserService::get_user_image(
+  let r: Result<PathBuf, HttpException> = user_service::get_user_image(
     auth_guard.value,
     config
   ).await;
 
   match r {
-    Ok(p) => {
-      Ok(NamedFile::open(p).await.unwrap())
+    Ok(img) => {
+      Ok(NamedFile::open(img).await.unwrap())
     },
     Err(e) => {
       Err( ApiJsonResponse {
@@ -165,11 +165,12 @@ pub async fn get_user_image(auth_guard: AuthGuard, config: &State<ConfigModel>) 
 
 
 #[post("/user-serv/update-user-image", data = "<file>")]
-pub async fn update_user_image(auth_guard: AuthGuard, file: Form<TempFile<'_>>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn update_user_image(auth_guard: AuthGuard, file: Form<TempFile<'_>>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<(), HttpException> = UserService::update_user_image(
+  let r: Result<(), HttpException> = user_service::update_user_image(
     auth_guard.value,
     file,
+    mongo,
     config
   ).await;
 

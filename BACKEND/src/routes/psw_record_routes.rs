@@ -7,12 +7,11 @@ use serde::Deserialize;
 use mongodb::Database;
 
 // modules
-use crate::services::PswRecordService;
-use crate::guards::AuthGuard::AuthGuard;
-use crate::models::PswRecord::{NewPswRecordDTO, PswRecord};
-use crate::models::HttpException::HttpException;
+use crate::services::psw_record_service;
+use crate::guards::auth_guard::AuthGuard;
+use crate::models::psw_record_model::{NewPswRecordDTO, PswRecord};
+use crate::models::http_exception::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
-use crate::config::ConfigModel;
 
 
 
@@ -20,9 +19,9 @@ use crate::config::ConfigModel;
 
 
 #[post("/record-serv/create-new-record", data="<req>")]
-pub async fn create_new_record(req: Json<NewPswRecordDTO>, auth: AuthGuard, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn create_new_record(req: Json<NewPswRecordDTO>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<(), HttpException> = PswRecordService::create_new_record(req.into_inner(), auth.value, mongo).await;
+  let r: Result<(), HttpException> = psw_record_service::create_new_record(req.into_inner(), auth.value, mongo).await;
 
   match r {
     Ok(_) => {
@@ -47,9 +46,9 @@ pub async fn create_new_record(req: Json<NewPswRecordDTO>, auth: AuthGuard, mong
 
 
 #[patch("/record-serv/patch-record", data="<req>")]
-pub async fn patch_record(req: Json<PswRecord>, auth: AuthGuard, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn patch_record(req: Json<PswRecord>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<(), HttpException> = PswRecordService::path_record(req.into_inner(), auth.value, mongo).await;
+  let r: Result<(), HttpException> = psw_record_service::path_record(req.into_inner(), auth.value, mongo).await;
 
   match r {
     Ok(_) => {
@@ -81,9 +80,9 @@ pub struct _DeleteRecordReq {
 }
 
 #[delete("/record-serv/delete-record", data="<req>")]
-pub async fn delete_record(req: Json<_DeleteRecordReq>, auth: AuthGuard, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn delete_record(req: Json<_DeleteRecordReq>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
-  let r: Result<(), HttpException> = PswRecordService::delete_record(&req.target_id, auth.value, mongo).await;
+  let r: Result<(), HttpException> = psw_record_service::delete_record(&req.target_id, auth.value, mongo).await;
 
   match r {
     Ok(_) => {
@@ -108,9 +107,9 @@ pub async fn delete_record(req: Json<_DeleteRecordReq>, auth: AuthGuard, mongo: 
 
 
 #[get("/record-serv/get-records")]
-pub async fn get_all_records(auth: AuthGuard, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiJsonResponse, ApiJsonResponse> {
+pub async fn get_all_records(auth: AuthGuard, mongo: &State<Database>) -> Result<ApiJsonResponse, ApiJsonResponse> {
 
-  let r = PswRecordService::get_all_records(auth.value, mongo).await;
+  let r = psw_record_service::get_all_records(auth.value, mongo).await;
 
   match r {
     Ok(j) => {
@@ -135,9 +134,9 @@ pub async fn get_all_records(auth: AuthGuard, mongo: &State<Database>, config: &
 
 
 #[get("/record-serv/get-records/<target_id>")]
-pub async fn get_single_record(target_id: &str, auth: AuthGuard, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiJsonResponse, ApiJsonResponse> {
+pub async fn get_single_record(target_id: &str, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiJsonResponse, ApiJsonResponse> {
 
-  let r: Result<PswRecord, HttpException> = PswRecordService::get_single_record(target_id, auth.value, mongo).await;
+  let r: Result<PswRecord, HttpException> = psw_record_service::get_single_record(target_id, auth.value, mongo).await;
 
   match r {
     Ok(j) => {

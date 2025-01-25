@@ -1,3 +1,3 @@
 
-pub mod AuthGuard;
-pub mod CorsFairing;
+pub mod auth_guard;
+pub mod cors_fairing;

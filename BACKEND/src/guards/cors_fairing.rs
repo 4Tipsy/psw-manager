@@ -9,12 +9,12 @@ use crate::config::ConfigModel;
 
 
 
-pub struct CORS;
+pub struct CorsFairing;
 
 
 
 #[async_trait]
-impl Fairing for CORS {
+impl Fairing for CorsFairing {
 
   fn info(&self) -> Info {
     Info {
@@ -26,7 +26,7 @@ impl Fairing for CORS {
 
   async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
 
-    let config: &ConfigModel = req.rocket().state::<ConfigModel>().unwrap();
+    let config: &ConfigModel = req.rocket().state().unwrap();
 
 
     
@@ -34,7 +34,7 @@ impl Fairing for CORS {
       res.set_header(Header::new("Access-Control-Allow-Origin", host));
     }
     res.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PATCH, DELETE"));
-    res.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+    res.set_header(Header::new("Access-Control-Allow-Headers", "Content-Type, Content-Length"));
     res.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
   }
 

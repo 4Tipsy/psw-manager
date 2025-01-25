@@ -13,7 +13,7 @@ info:
 
 paths:
 
-  /user-serv/create-new-user:
+  /__api__/user-serv/create-new-user:
     post:
       summary: "create-new-user"
       tags:
@@ -43,7 +43,7 @@ paths:
                     type: string
 
 
-  /user-serv/get-current-user:
+  /__api__/user-serv/get-current-user:
     get:
       summary: "get-current-user"
       description: "*With auth"
@@ -69,7 +69,7 @@ paths:
                     type: string
     
 
-  /user-serv/login:
+  /__api__/user-serv/login:
     post:
       summary: "login"
       tags:
@@ -106,7 +106,7 @@ paths:
                     type: string
 
 
-  /user-serv/get-user-image:
+  /__api__/user-serv/get-user-image:
     get:
       summary: "get-user-image"
       description: "*With auth"
@@ -134,9 +134,9 @@ paths:
                     type: string
 
 
-  /user-serv/update-user-image:
+  /__api__/user-serv/update-user-image:
     post:
-      summary: "get-user-image"
+      summary: "update-user-image"
       description: "*With auth"
       tags:
         - user-serv
@@ -170,7 +170,7 @@ paths:
                     type: string
 
 
-  /record-serv/create-new-record:
+  /__api__/record-serv/create-new-record:
     post:
       summary: "create-new-record"
       description: "*With auth"
@@ -201,7 +201,7 @@ paths:
                     type: string
 
 
-  /record-serv/patch-record:
+  /__api__/record-serv/patch-record:
     patch:
       summary: "patch-record"
       description: "*With auth"
@@ -232,7 +232,7 @@ paths:
                     type: string
 
 
-  /record-serv/delete-record:
+  /__api__/record-serv/delete-record:
     delete:
       summary: "delete-record"
       description: "*With auth"
@@ -267,7 +267,7 @@ paths:
                     type: string
 
 
-  /record-serv/get-records:
+  /__api__/record-serv/get-records:
     get:
       summary: "get-records (all)"
       description: "*With auth"
@@ -295,7 +295,7 @@ paths:
                     type: string
 
 
-  /record-serv/get-records/{target_id}:
+  /__api__/record-serv/get-records/{target_id}:
     get:
       summary: "get-records (single)"
       description: "*With auth"
@@ -327,7 +327,7 @@ paths:
                     type: string
 
 
-  /static-serv/openapi.yaml:
+  /__api__/static-serv/openapi.yaml:
     get:
       summary: "openapi_yaml"
       tags:

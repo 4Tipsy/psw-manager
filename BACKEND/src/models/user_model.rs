@@ -10,6 +10,8 @@ pub struct User {
   pub user_email: String,
   pub hashed_password: String,
 
+  pub user_image: String,
+
   pub verified: bool,
 }
 
@@ -23,6 +25,8 @@ pub struct NewUserDTO {
   pub user_email: String,
   pub password: String,
 
+  //pub user_image: String,
+
   //pub verified: bool,
 }
 
@@ -33,6 +37,8 @@ pub struct UserDTO {
   pub user_name: String,
   pub user_email: String,
   //pub hashed_password: String,
+
+  pub user_image: String,
 
   pub verified: bool,
 }

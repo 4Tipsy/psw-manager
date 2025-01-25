@@ -9,6 +9,7 @@ mod util;
 
 
 use rocket::{launch, catch, routes, catchers};
+use rocket::options;
 use rocket::figment::Figment;
 use rocket::http::Status;
 use rocket::serde::json::json;
@@ -20,10 +21,10 @@ use mongodb::{Client, Database};
 
 
 // modules
-use crate::routes::UserRoutes;
-use crate::routes::PswRecordRoutes;
-use crate::routes::StaticRoutes;
-use crate::guards::CorsFairing;
+use crate::routes::user_routes;
+use crate::routes::psw_record_routes;
+use crate::routes::static_routes;
+use crate::guards::cors_fairing::CorsFairing;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
 use crate::config::{ConfigModel, load_config};
 
@@ -35,6 +36,13 @@ static ACCESS_TOKEN_LIVES: i64 = 24*30;
 
 
 
+
+
+
+#[options("/<_..>")]
+async fn handle_options() {
+  /* for some reason, without that fn, cors fails on OPTIONS request */
+}
 
 
 
@@ -56,7 +64,8 @@ async fn handle_500() -> ApiJsonResponse {
 }
 /* shouldn't be like that */
 #[catch(401)]
-async fn handle_401__AuthGuard() -> ApiJsonResponse {
+#[allow(non_snake_case)]
+async fn handle_401__auth_guard__() -> ApiJsonResponse {
   ApiJsonResponse {
     status: Status::Unauthorized,
     value: json!({"err": "Unauthorized".to_string()})
@@ -93,15 +102,16 @@ async fn launch() -> _ {
     .mount("/",
       FileServer::new(&config.client_static_path, FileServerOptions::Index) // client static
     )
-    .mount("/api/", routes![
-      UserRoutes::create_new_user, UserRoutes::get_current_user, UserRoutes::login, UserRoutes::get_user_image, UserRoutes::update_user_image,
-      PswRecordRoutes::create_new_record, PswRecordRoutes::patch_record, PswRecordRoutes::delete_record, PswRecordRoutes::get_all_records, PswRecordRoutes::get_single_record,
-      StaticRoutes::send_docs_swagger, StaticRoutes::send_docs_redoc, StaticRoutes::send_openapi
+    .mount("/__api__/", routes![
+      user_routes::create_new_user, user_routes::get_current_user, user_routes::login, user_routes::get_user_image, user_routes::update_user_image,
+      psw_record_routes::create_new_record, psw_record_routes::patch_record, psw_record_routes::delete_record, psw_record_routes::get_all_records, psw_record_routes::get_single_record,
+      static_routes::send_docs_swagger, static_routes::send_docs_redoc, static_routes::send_openapi,
+      handle_options
     ])
     .register("/", catchers![
-      handle_404, handle_500, handle_401__AuthGuard
+      handle_404, handle_500, handle_401__auth_guard__
     ])
     .manage(config)
     .manage(mongo)
-    .attach(CorsFairing::CORS) // set cors
+    .attach(CorsFairing) // set cors
 }

@@ -14,8 +14,8 @@ use mongodb::bson::doc;
 use chrono;
 
 // modules
-use crate::models::User::User;
-use crate::models::Tokens::AccessToken;
+use crate::models::user_model::User;
+use crate::models::tokens_models::AccessToken;
 use crate::config::ConfigModel;
 
 
