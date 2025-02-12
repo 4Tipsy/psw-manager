@@ -39,7 +39,7 @@ pub async fn create_new_record(new_record: NewPswRecordDTO, user: User, mongo: &
       new_record_id += "T";
     }
 
-    let _record_exist: bool = record_collection.find_one(doc! {"owner_id": &new_record_id}).await.unwrap().is_some();
+    let _record_exist: bool = record_collection.find_one(doc! {"owner_id": &user.user_id, "record_id": &new_record_id}).await.unwrap().is_some();
     if _record_exist == false { break; }
     _iters += 1;
   }
