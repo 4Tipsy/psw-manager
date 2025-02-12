@@ -186,6 +186,8 @@
     gap: 0 8px;
 
     overflow-x: auto;
+
+    white-space: nowrap
   }
 
 
