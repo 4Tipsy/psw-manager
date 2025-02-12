@@ -86,14 +86,14 @@
     @mouseenter="isHovered=true" @mouseleave="isHovered=false"
   >
     <div class="record__idx">{{ props.idx }}</div>
-    <div class="record__app-name">{{ props.app_name }}</div>
-    <div class="record__name">{{ renderedFields[0] }}</div>
-    <div class="record__login">{{ renderedFields[1] }}</div>
-    <div class="record__psw">{{ renderedFields[2] }}</div>
+    <div class="record__app-name" it-scrollable>{{ props.app_name }}</div>
+    <div class="record__name" it-scrollable>{{ renderedFields[0] }}</div>
+    <div class="record__login" it-scrollable>{{ renderedFields[1] }}</div>
+    <div class="record__psw" it-scrollable>{{ renderedFields[2] }}</div>
 
 
 
-    <div class="record__tags-container">
+    <div it-scrollable class="record__tags-container">
       <template v-if="props.tags.length != 0" v-for="tag in tags">
         <SpecialText :tcolor="textToColor(tag)">{{ tag }}</SpecialText>
       </template>
@@ -137,6 +137,12 @@
 
 
 <style scoped lang="scss">
+
+  .record__app-name, .record__name, .record__login, .record__psw {
+    overflow: auto;
+    text-wrap: nowrap;
+  }
+
 
 
   .record {

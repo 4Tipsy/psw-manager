@@ -7,7 +7,7 @@
   import request, { type ResponseError } from 'superagent'
 
   import { useModalsStore } from '../../stores/ModalsStore'
-
+  import { ADecoder } from '../../utils/ADecoder'
 
 
   const modalsStore = useModalsStore()
@@ -40,22 +40,39 @@
 
   function performPatch() {
 
+    try {
+      var reqBody = JSON.parse(patchInput.value)
+    } catch (e) {
+      ///@ts-ignore
+      reqResult.value = `[not_sent] ${e.message}`
+      return
+    }
+
     request
       .patch( window.API_URL + '/__api__/record-serv/patch-record' )
-      .send( JSON.parse(patchInput.value) )
+      .send( reqBody )
       .withCredentials()
       .then(_ => {
         window.location.reload()
       })
       .catch((e: ResponseError) => {
         if (e.response) {
-        reqResult.value = `[${e.status}] ${e.response.body.err}`
+          reqResult.value = `[${e.status}] ${e.response.body.err}`
         } else {
-        reqResult.value = `[not_sent] ${e.message}`
+          reqResult.value = `[not_sent] ${e.message}`
         }
       })
   }
 
+
+
+  // encode helper
+  const encodeHelperVal = ref('')
+  function handleEncodeHelper() {
+    if (encodeHelperVal.value == '') { return }
+    const adecoder = new ADecoder()
+    encodeHelperVal.value = adecoder.encode( encodeHelperVal.value )
+  }
 
 
 </script>
@@ -94,7 +111,11 @@
 
         <!-- input -->
         <textarea class="patch-input" v-model="patchInput"/>
-        <div class="patch-input__info">Json is not validating on client</div>
+        <div class="encode-helper-input__info">
+          <div>Encode helper (encode string)</div>
+          <button class="encode-helper-input__btn" @click="handleEncodeHelper()">[encode]</button>
+        </div>
+        <input type="text" class="encode-helper-input" v-model="encodeHelperVal"/>
 
 
         <!-- btn -->
@@ -176,9 +197,29 @@
 
     margin: 15px 0;
   }
-  .patch-input__info {
-    //color: var(--text-color-2);
+  .encode-helper-input__info {
     font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .encode-helper-input__btn {
+    background: none;
+    border: none;
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .encode-helper-input {
+    width: 100%;
+    padding: 2px;
+    box-sizing: border-box;
+    color: inherit;
+    font-size: inherit;
+    margin-top: 5px;
   }
 
 
@@ -195,9 +236,9 @@
   .result {
     position: absolute;
     left: 0;
-    bottom: -35px;
+    bottom: -100px;
     color: var(--text-color-2);
-    font-size: 20px;
+    font-size: 18px;
   }
 
 </style>

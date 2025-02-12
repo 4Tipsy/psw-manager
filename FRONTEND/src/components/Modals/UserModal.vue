@@ -10,8 +10,11 @@
   import FancyButton from "../../ui/FancyButton.vue"
   import { useModalsStore } from "../../stores/ModalsStore"
   import { useUserStore } from "../../stores/UserStore"
+  import { useRecordsStore } from "../../stores/RecordsStore"
 
   import { ref, computed } from "vue"
+
+  import { downloadRecords } from "../../utils/downloadRecords"
 
 
 
@@ -20,7 +23,7 @@
 
   const modalsStore = useModalsStore()
   const userStore = useUserStore()
-
+  const recordsStore = useRecordsStore()
 
 
 
@@ -56,6 +59,16 @@
       Cookies.remove("psw-manager.access_token")
       localStorage.removeItem("psw-manager.adecoder_phrase")
       window.location.reload()
+    }
+  }
+
+  function handleDownloadRecords() {
+    if (confirm("Confirm download records?")) {
+      downloadRecords(
+        userStore.user!!,
+        recordsStore.records!!,
+        recordsStore._totalSize!!
+      )
     }
   }
 
@@ -137,6 +150,7 @@
 
 
       <div class="modal__btns">
+        <FancyButton :fn="handleDownloadRecords">Download records</FancyButton>
         <FancyButton :fn="handleLogout">Log out</FancyButton>
       </div>
 
@@ -214,6 +228,8 @@
 
     box-sizing: border-box;
     border: 3px solid var(--text-color-2);
+
+    position: relative;
   }
   .avatar {
     height: 100%;
@@ -233,9 +249,21 @@
   .avatar__input {
     display: none;
   }
-  .avatar-wrapper:hover {
+  .avatar-wrapper:hover img {
     cursor: pointer;
     opacity: 0.4;
+  }
+  .avatar-wrapper:hover::after {
+    content: "Change";
+    position: absolute;
+    cursor: pointer;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    color: black;
+    font-size: 18px;
   }
 
 
@@ -274,5 +302,9 @@
 
     margin-top: 40px;
   }
+  .modal__btns > *:hover {
+    transform: scale(1.025);
+  }
+
 
 </style>
