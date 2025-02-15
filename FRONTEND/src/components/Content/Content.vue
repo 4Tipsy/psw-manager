@@ -105,7 +105,7 @@
             <!-- search -->
             <div :class="clsx('search-wrapper', searchActive && 'search-wrapper_active')">
               <SearchSvg class="search__ico"/>
-              <input type="search" class="search__input" placeholder="Search..."
+              <input type="search" class="search__input" placeholder="Search... (by tags)"
               @focus="searchActive=true" @blur="searchActive=false" v-model="searchValue"/>
             </div>
 
