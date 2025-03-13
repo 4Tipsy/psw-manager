@@ -70,7 +70,8 @@
 <template>
 
   
-  <div class="records-table">
+  <div class="records-table-wrapper">
+  <div class="records-table" it-scrollable>
 
 
 
@@ -123,7 +124,7 @@
 
 
 
-
+  </div>
   </div>
 
 
@@ -137,7 +138,7 @@
 <style scoped lang="scss">
 
 
-  .records-table {
+  .records-table-wrapper {
     flex-grow: 1; // to take all available space, see parent component
 
     --grid-layout: 60px  repeat(4, 1fr)  2fr    0.6fr  0.4fr;
@@ -150,7 +151,19 @@
     border-radius: 10px;
 
     overflow: hidden;
+
+    position: relative;
   }
+
+
+
+  .records-table {
+    position: absolute;
+    overflow-y: auto;
+    max-height: 100%;
+    //> * {display: none !important;}
+  }
+
 
 
   .records-table__message {
