@@ -161,7 +161,7 @@
     position: absolute;
     overflow-y: auto;
     max-height: 100%;
-    //> * {display: none !important;}
+    width: 100%;
   }
 
 
