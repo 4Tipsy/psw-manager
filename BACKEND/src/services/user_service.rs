@@ -48,7 +48,7 @@ pub async fn create_new_user(new_user: NewUserDTO, mongo: &State<Database>, conf
   let mut _iters: i32 = 0;
   loop {
     if _iters < 10 {
-      new_user_id = "U-".to_owned() + gen_simple_hash(8).as_ref();
+      new_user_id = "U-".to_owned() + gen_simple_hash(11).as_ref();
 
     } else if _iters == 10 {
       new_user_id += "-T";
@@ -64,7 +64,7 @@ pub async fn create_new_user(new_user: NewUserDTO, mongo: &State<Database>, conf
 
 
   // create user image in fs
-  let _img_file_name = "avatar_".to_owned() + &new_user_id + ".jpg";
+  let _img_file_name = "avatar__".to_owned() + &new_user_id + "__" + ".jpg";
   let user_img_path = Path::new( &config.storage_path ).join( &_img_file_name );
   let _ = fs::copy("./data/default_user_image.jpg", user_img_path);
 
@@ -165,7 +165,7 @@ pub async fn get_current_user(user: User) -> Result<UserDTO, HttpException> {
 
 pub async fn get_user_image(user: User, config: &State<ConfigModel>) -> Result<PathBuf, HttpException> {
 
-  let user_img_path = Path::new( &config.storage_path ).join( &user.user_image );
+  let user_img_path: PathBuf = Path::new( &config.storage_path ).join( &user.user_image );
 
   return Ok(user_img_path);
 }
@@ -177,7 +177,7 @@ pub async fn get_user_image(user: User, config: &State<ConfigModel>) -> Result<P
 
 
 
-
+#[allow(unused_mut)]
 pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<(), HttpException> {
 
   // if file is not image
@@ -189,27 +189,27 @@ pub async fn update_user_image(user: User, mut file: Form<TempFile<'_>>, mongo: 
     });
   }
   
+  let _e = ".".to_string() + &file.content_type().unwrap().to_string().split('/').last().unwrap_or("unknown"); // get file extension, returns ".ext"
+  let user_new_img_name = "avatar__".to_owned() + &user.user_id + "__" + &_e;
+  let user_new_img_path = Path::new( &config.storage_path ).join( &user_new_img_name );
 
-  let _e = ".".to_string() + &file.name().unwrap().split('.').last().unwrap_or("unknown"); // get file extension, returns ".ext"
-  let user_img_name = "avatar_".to_owned() + &user.user_id + &_e;
-  let user_img_path = Path::new( &config.storage_path ).join( &user_img_name );
-
-  let _ = fs::remove_file(&user_img_path);
+  // delete old user image
+  let _ = fs::remove_file(Path::new(&config.storage_path).join(&user.user_image));
 
 
-  match fs::copy(file.path().unwrap(), user_img_path) {
+  match fs::copy(file.path().unwrap(), user_new_img_path) {
   /*match file.persist_to(user_img_path).await {*/ 
       
       Ok(_) => {
         let _ = mongo.collection::<User>("users").find_one_and_update(
           doc! {"user_id": &user.user_id},
-          doc! {"$set": doc! {"user_image": &user_img_name} }
+          doc! {"$set": doc! {"user_image": &user_new_img_name} }
         ).await.unwrap();
         return Ok(());
       },
 
       Err(e) => {
-        println!("{}", e);
+        println!("___! {}", e);
         return Err( HttpException {
           status: Status::BadRequest,
           message: "Error while updating user image".to_string(),

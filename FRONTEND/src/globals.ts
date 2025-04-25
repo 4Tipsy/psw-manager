@@ -27,7 +27,7 @@ window.LINKS__SRC = ""
 window.LINKS__API = ""
 window.LINKS__ADECODER_ABOUT = "https://github.com/4Tipsy"
 
-window.APP_VERSION = "v0.1.0"
+window.APP_VERSION = "v2.0.0-ALPHA"
 
 window.API_URL = "http://localhost:4321"
 

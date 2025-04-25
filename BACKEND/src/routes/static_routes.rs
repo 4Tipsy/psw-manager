@@ -14,7 +14,7 @@ pub async fn send_docs_swagger() -> Option<NamedFile> {
   return NamedFile::open(path).await.ok();
 }
 
-#[get("/docs-redoc")]
+#[get("/docs")]
 pub async fn send_docs_redoc() -> Option<NamedFile> {
   let path = Path::new("./data/redoc.html");
   return NamedFile::open(path).await.ok();

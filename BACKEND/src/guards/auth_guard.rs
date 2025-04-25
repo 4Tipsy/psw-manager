@@ -30,19 +30,20 @@ pub struct AuthGuard {
 
 #[async_trait]
 impl<'r> FromRequest<'r> for AuthGuard {
-  type Error = ();
+  type Error = String;
 
 
-  async fn from_request(req: &'r Request<'_>) -> Outcome<Self, ()> {
+  async fn from_request(req: &'r Request<'_>) -> Outcome<Self, String> {
 
     let config: &State<ConfigModel> = req.guard().await.unwrap();
     let mongo: &State<Database> = req.guard().await.unwrap();
+    let _if_err: String = format!("{} {}", req.method().to_string(), req.uri().to_string()); // will be returned on error // log purpose
 
 
     // get cookie
     let access_cookie = req.cookies().get("psw-manager.access_token");
     if access_cookie.is_none() {
-      return Outcome::Error((Status::Unauthorized, ())); // return
+      return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
     }
 
 
@@ -53,7 +54,7 @@ impl<'r> FromRequest<'r> for AuthGuard {
     _validation.required_spec_claims = HashSet::new();
     _validation.validate_exp = false;
     match jsonwebtoken::decode::<AccessToken>(token, &secret, &_validation) {
-        
+
 
       Ok(parsed_token) => {
 
@@ -63,7 +64,7 @@ impl<'r> FromRequest<'r> for AuthGuard {
           &parsed_token.claims.this_jwt_expires_at
         ).unwrap();
         if time_now > time_expires_at {
-          return Outcome::Error((Status::Unauthorized, ())); // return
+          return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
 
         // check if user exists / is verified
@@ -71,22 +72,22 @@ impl<'r> FromRequest<'r> for AuthGuard {
           .find_one(doc! {"user_id": &parsed_token.claims.this_user_id}).await.unwrap();
 
         if user.is_none() {
-          return Outcome::Error((Status::Unauthorized, ())); // return
+          return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
 
         if user.clone().unwrap().verified == false {
-          return Outcome::Error((Status::Unauthorized, ())); // return
+          return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
 
         // if ok
-        Outcome::Success( AuthGuard {value: user.unwrap()} )
+        Outcome::Success( AuthGuard {value: user.unwrap()} ) // RETURN ON OK
       },
 
 
 
       // on jwt verify failure
       Err(_) => {
-        return Outcome::Error((Status::Unauthorized, ())); // return
+        return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
       }
 
 

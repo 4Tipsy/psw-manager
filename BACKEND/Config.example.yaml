@@ -4,8 +4,12 @@ address: "0.0.0.0"
 storage_path: "/some/path"
 psw_secret: secret
 db_mongo_uri: mongodb://localhost:27017
-db_redis_uri: "..."
 jwt_secret: secret
 jwt_epoch: 1
+
+# this is mostly for manual testing
 cors_allowed_hosts:
-  - "https://example.com"
+  - "http://localhost"
+
+
+client_static_path: "/some/path"

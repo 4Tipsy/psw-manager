@@ -9,7 +9,7 @@ mod util;
 
 
 use rocket::{launch, catch, routes, catchers};
-use rocket::options;
+use rocket::{options, get};
 use rocket::figment::Figment;
 use rocket::http::Status;
 use rocket::serde::json::json;
@@ -39,10 +39,24 @@ static ACCESS_TOKEN_LIVES: i64 = 24*30;
 
 
 
+
 #[options("/<_..>")]
-async fn handle_options() {
+async fn help_handle_options() {
   /* for some reason, without that fn, cors fails on OPTIONS request */
 }
+
+#[get("/ping")]
+async fn handle_ping() -> ApiTextResponse {
+  /* ping-api request */
+  ApiTextResponse {
+    status: Status::NonAuthoritativeInformation,
+    value: "pong".to_string()
+  }
+}
+
+
+
+
 
 
 
@@ -55,6 +69,13 @@ async fn handle_404() -> ApiTextResponse {
     value: "Not found".to_string()
   }
 }
+#[catch(422)]
+async fn handle_422() -> ApiJsonResponse {
+  ApiJsonResponse {
+    status: Status::UnprocessableEntity,
+    value: json!({"err": "Unprocessable entity. The request was well-formed but was unable to be followed due to semantic errors".to_string()})
+  }
+}
 #[catch(500)]
 async fn handle_500() -> ApiJsonResponse {
   ApiJsonResponse {
@@ -62,7 +83,7 @@ async fn handle_500() -> ApiJsonResponse {
     value: json!({"err": "Internal server error".to_string()})
   }
 }
-/* shouldn't be like that */
+/* shouldn't be like that, but returning from guard is not working for some reason, sadly... */
 #[catch(401)]
 #[allow(non_snake_case)]
 async fn handle_401__auth_guard__() -> ApiJsonResponse {
@@ -106,10 +127,10 @@ async fn launch() -> _ {
       user_routes::create_new_user, user_routes::get_current_user, user_routes::login, user_routes::get_user_image, user_routes::update_user_image,
       psw_record_routes::create_new_record, psw_record_routes::patch_record, psw_record_routes::delete_record, psw_record_routes::get_all_records, psw_record_routes::get_single_record,
       static_routes::send_docs_swagger, static_routes::send_docs_redoc, static_routes::send_openapi,
-      handle_options
+      help_handle_options, handle_ping
     ])
     .register("/", catchers![
-      handle_404, handle_500, handle_401__auth_guard__
+      handle_404, handle_422, handle_500, handle_401__auth_guard__
     ])
     .manage(config)
     .manage(mongo)

@@ -1,39 +1,43 @@
 
 import { type User } from "../types/User"
-import { type PswRecord } from "../types/PswRecord"
+import { type TypedPswRecord, type RawPswRecord } from "../types/PswRecord"
+import { ADecoder } from "./ADecoder"
 
 
 
+function downloadRecords(user: User, records: Array<TypedPswRecord|RawPswRecord>, recordsSize: number) {
 
-function downloadRecords(user: User, records: PswRecord[], recordsSize: number) {
+  let recordsSizePretty = (recordsSize / 1000).toFixed(2) + "KB"
+  let adecoder = new ADecoder()
 
-  let recordsSizePretty = (recordsSize / 1000).toFixed(2)
+
+  let decodedRecords = records.map((r) => {
+    if (r._record_type == 'TYPED') {
+      r.account_name = adecoder.decode(r.account_name)
+      r.encoded_login = adecoder.decode(r.encoded_login)
+      r.encoded_password = adecoder.decode(r.encoded_password)
+    }
+    if (r._record_type == 'RAW') {
+      r.raw_content = adecoder.decode(r.raw_content)
+    }
+    return r
+  })
+
+
 
   let text = 
 `
-All records (${recordsSizePretty} KB) are encoded via CryptoJS.DES method
-Decode em by yourself somehow ;)
+// All ${user.user_id}\`s records (${recordsSizePretty})
+// Decoded via CryptoJS.DES, ADecoder.decodePhrase = "${localStorage.getItem('psw-manager.adecoder_phrase')}"
 
-
-
-@@@ USER:
-\`\`\`
-${JSON.stringify(user, null, 2)}
-\`\`\`
-
-
-
-@@@ RECORDS:
-\`\`\`
-${JSON.stringify(records, null, 2)}
-\`\`\`
+${JSON.stringify(decodedRecords, null, 2)}
 `
 
 
 
   // trigger download
   let a = document.createElement('a')
-  a.download = 'records.txt' // file name
+  a.download = 'records.json' // file name
   a.href = URL.createObjectURL(new Blob([text]))
   a.style.display = 'none'
   a.click()

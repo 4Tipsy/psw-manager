@@ -5,13 +5,22 @@ use rocket::serde::json::{json, Json, to_value as to_json_value};
 
 use serde::Deserialize;
 use mongodb::Database;
+//use either::Either;
+use crate::util::my_either::MyEither as Either;
 
 // modules
 use crate::services::psw_record_service;
 use crate::guards::auth_guard::AuthGuard;
-use crate::models::psw_record_model::{NewPswRecordDTO, PswRecord};
+use crate::models::typed_psw_record_model::{TypedPswRecord, NewTypedPswRecordDTO};
+use crate::models::raw_psw_record_model::{RawPswRecord, NewRawPswRecordDTO};
 use crate::models::http_exception::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
+
+// helpers
+type _AnyNewRecordDTO = Either<NewTypedPswRecordDTO, NewRawPswRecordDTO>;
+type _AnyRecord = Either<TypedPswRecord, RawPswRecord>;
+
+
 
 
 
@@ -19,7 +28,7 @@ use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
 
 
 #[post("/record-serv/create-new-record", data="<req>")]
-pub async fn create_new_record(req: Json<NewPswRecordDTO>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn create_new_record(req: Json<_AnyNewRecordDTO>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
   let r: Result<(), HttpException> = psw_record_service::create_new_record(req.into_inner(), auth.value, mongo).await;
 
@@ -46,7 +55,7 @@ pub async fn create_new_record(req: Json<NewPswRecordDTO>, auth: AuthGuard, mong
 
 
 #[patch("/record-serv/patch-record", data="<req>")]
-pub async fn patch_record(req: Json<PswRecord>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn patch_record(req: Json<_AnyRecord>, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
   let r: Result<(), HttpException> = psw_record_service::path_record(req.into_inner(), auth.value, mongo).await;
 
@@ -109,7 +118,7 @@ pub async fn delete_record(req: Json<_DeleteRecordReq>, auth: AuthGuard, mongo: 
 #[get("/record-serv/get-records")]
 pub async fn get_all_records(auth: AuthGuard, mongo: &State<Database>) -> Result<ApiJsonResponse, ApiJsonResponse> {
 
-  let r = psw_record_service::get_all_records(auth.value, mongo).await;
+  let r: Result< Vec<_AnyRecord>, HttpException> = psw_record_service::get_all_records(auth.value, mongo).await;
 
   match r {
     Ok(j) => {
@@ -136,7 +145,7 @@ pub async fn get_all_records(auth: AuthGuard, mongo: &State<Database>) -> Result
 #[get("/record-serv/get-records/<target_id>")]
 pub async fn get_single_record(target_id: &str, auth: AuthGuard, mongo: &State<Database>) -> Result<ApiJsonResponse, ApiJsonResponse> {
 
-  let r: Result<PswRecord, HttpException> = psw_record_service::get_single_record(target_id, auth.value, mongo).await;
+  let r: Result<_AnyRecord, HttpException> = psw_record_service::get_single_record(target_id, auth.value, mongo).await;
 
   match r {
     Ok(j) => {

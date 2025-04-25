@@ -1,7 +1,18 @@
 
 
 <script setup lang="ts">
+
   import AccSection from "./AccSection.vue"
+  import request from "superagent"
+
+  function _ping() {
+    request
+      .get( window.API_URL + '/__api__/ping' )
+      .end((err, res) => {
+        console.log(res);
+      })
+  }
+
 </script>
 
 
@@ -13,7 +24,7 @@
     <div class="header">
 
       <div class="logo">
-        <img class="logo__img" src="/perfectly-downscaled-shit.jpeg" alt="">
+        <img class="logo__img" src="/perfectly-downscaled-shit.jpeg" alt="" @click="_ping()">
         <div class="logo__text">Silly Password Manager</div>
       </div>
       

@@ -1,6 +1,7 @@
 
 use serde::Deserialize;
 use serde_yaml;
+
 use std::fs;
 use std::panic;
 
@@ -16,7 +17,6 @@ pub struct ConfigModel {
   pub storage_path: String,
   pub psw_secret: String,
   pub db_mongo_uri: String,
-  pub db_redis_uri: String,
   pub jwt_secret: String,
   pub jwt_epoch: i32,
   pub cors_allowed_hosts: Vec<String>,

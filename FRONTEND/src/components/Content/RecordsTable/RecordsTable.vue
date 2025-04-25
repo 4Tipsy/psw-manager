@@ -3,14 +3,15 @@
 <script setup lang="ts">
 
 
-  import Record from './Record.vue';
+  import TypedRecord from './TypedRecord.vue';
+  import RawRecord from './RawRecord.vue';
 
   import { defineProps, computed, type ComputedRef } from 'vue'
   import Color from 'colorjs.io'
 
   // modules
   import { useRecordsStore } from '../../../stores/RecordsStore';
-  import { type PswRecord } from '../../../types/PswRecord';
+  import { type TypedPswRecord, type RawPswRecord } from '../../../types/PswRecord';
 
 
 
@@ -23,7 +24,7 @@
 
 
   // APPLY SEARCH
-  const sortedRecordsToRender: ComputedRef<PswRecord[]> = computed(() => {
+  const sortedRecordsToRender: ComputedRef<Array<TypedPswRecord|RawPswRecord>> = computed(() => {
 
     // if no search
     if (props.recordSearchValue.trim() == '') {
@@ -101,20 +102,38 @@
       <template v-if="recordsStore.records!!.length == 0">
         <span class="records-table__message">empty</span>
       </template>
+
       <template v-else v-for="record, idx in sortedRecordsToRender" :key="record.record_id">
-        <Record
-          :owner_id="record.owner_id"
-          :record_id="record.record_id"
-          :app_ico="record.app_ico"
-          :app_name="record.app_name"
-          :account_name="record.account_name"
-          :encoded_login="record.encoded_login"
-          :encoded_password="record.encoded_password"
-          :tags="record.tags"
-          :created_at="record.created_at"
-          :idx="idx + 1"
-        />
+        <template v-if="record._record_type == 'TYPED'">
+          <TypedRecord
+            :owner_id="record.owner_id"
+            :record_id="record.record_id"
+            :app_ico="record.app_ico"
+            :app_name="record.app_name"
+            :account_name="record.account_name"
+            :encoded_login="record.encoded_login"
+            :encoded_password="record.encoded_password"
+            :tags="record.tags"
+            :created_at="record.created_at"
+            :idx="idx + 1"
+            :_record_type="record._record_type"
+          />
+        </template>
+        <template v-else-if="record._record_type == 'RAW'">
+          <RawRecord
+            :owner_id="record.owner_id"
+            :record_id="record.record_id"
+            :app_ico="record.app_ico"
+            :app_name="record.app_name"
+            :raw_content="record.raw_content"
+            :tags="record.tags"
+            :created_at="record.created_at"
+            :idx="idx + 1"
+            :_record_type="record._record_type"
+          />
+        </template>
       </template>
+      <!-- /rendering records -->
     </template>
 
     <template v-else>

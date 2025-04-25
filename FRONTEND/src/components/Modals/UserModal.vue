@@ -143,7 +143,7 @@
         </div>
         <input class="adecoder__input" type="text" v-model="adecoderInput"/>
         <div class="adecoder__btns">
-          <div @click="saveAdecoderInput">[save.it]</div>
+          <div @click="saveAdecoderInput">[saveit]</div>
           <div @click="deleteAdecoderInput">[delete]</div>
         </div>
       </div>

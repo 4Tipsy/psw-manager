@@ -7,11 +7,12 @@
 
   import request, { type ResponseError } from 'superagent'
   import { ref } from 'vue'
+  import clsx from 'clsx'
 
 
 
   const modalsStore = useModalsStore()
-
+  const recordType = ref<'TYPED'|'RAW'>('TYPED')
 
 
   const appIcoInput = ref('')
@@ -20,6 +21,7 @@
   const loginInput = ref('')
   const passwordInput = ref('')
   const tagsInput = ref('')
+  const rawContentInput = ref('')
 
   const reqResult = ref('')
 
@@ -29,9 +31,16 @@
     reqResult.value = ''
 
     // if inputs are empty
-    if (appIcoInput.value == '' || appNameInput.value == '' || accountNameInput.value == '' || loginInput.value == '' || passwordInput.value == '') {
-      reqResult.value = 'Fill all the inputs'
-      return
+    if (recordType.value == 'RAW') {
+      if (appIcoInput.value == '' || appNameInput.value == '' || rawContentInput.value == '') {
+        reqResult.value = 'Fill all the inputs'
+        return
+      }
+    } else {
+      if (appIcoInput.value == '' || appNameInput.value == '' || appNameInput.value == '' || accountNameInput.value == '' || loginInput.value == '' || passwordInput.value == '') {
+        reqResult.value = 'Fill all the inputs'
+        return
+      }
     }
 
     // adecoder
@@ -41,7 +50,7 @@
       return
     }
     if (adecoderPhrase == null) { return }
-    let adecoder = new ADecoder( adecoderPhrase )
+    let adecoder = new ADecoder(adecoderPhrase)
 
     // build body
     let _appIco: string | null = appIcoInput.value
@@ -49,15 +58,24 @@
       _appIco = null
     }
 
-    let _tags = tagsInput.value.split(" ").filter(t => {if (t != '') {return true}})
+    let _tags = tagsInput.value.trim().split(" ").filter(t => {if (t != '') {return true}})
 
-    const reqBody = {
-      app_ico: _appIco,
-      app_name: appNameInput.value,
-      account_name: adecoder.encode(accountNameInput.value),
-      encoded_login: adecoder.encode(loginInput.value),
-      encoded_password: adecoder.encode(passwordInput.value),
-      tags: _tags,
+    if (recordType.value == 'TYPED') {
+      var reqBody: any = {
+        app_ico: _appIco,
+        app_name: appNameInput.value,
+        account_name: adecoder.encode(accountNameInput.value),
+        encoded_login: adecoder.encode(loginInput.value),
+        encoded_password: adecoder.encode(passwordInput.value),
+        tags: _tags
+      } 
+    } else if (recordType.value == 'RAW') {
+      var reqBody: any = {
+        app_ico: _appIco,
+        app_name: appNameInput.value,
+        raw_content: adecoder.encode(rawContentInput.value),
+        tags: _tags
+      }
     }
 
     // request
@@ -76,6 +94,7 @@
         }
       })
   }
+
 
 </script>
 
@@ -107,20 +126,32 @@
         <input class="field__input" type="text" v-model="appNameInput">
       </div>
 
-      <div class="field-wrapper">
-        <div class="field__title">Account name</div>
-        <input class="field__input" type="text" v-model="accountNameInput">
-      </div>
 
-      <div class="field-wrapper">
-        <div class="field__title">Login</div>
-        <input class="field__input" type="text" v-model="loginInput">
-      </div>
 
-      <div class="field-wrapper">
-        <div class="field__title">Password</div>
-        <input class="field__input" v-model="passwordInput">
-      </div>
+      <template v-if="recordType == 'TYPED'">
+        <div class="field-wrapper">
+          <div class="field__title">Account name</div>
+          <input class="field__input" type="text" v-model="accountNameInput">
+        </div>
+
+        <div class="field-wrapper">
+          <div class="field__title">Login</div>
+          <input class="field__input" type="text" v-model="loginInput">
+        </div>
+
+        <div class="field-wrapper">
+          <div class="field__title">Password</div>
+          <input class="field__input" v-model="passwordInput">
+        </div>
+      </template>
+      <template v-else>
+        <div class="field-wrapper">
+          <div class="field__title">Raw content (raw text)</div>
+          <textarea class="field__raw-content-input" v-model="rawContentInput"/>
+        </div>
+      </template>
+
+
 
       <div class="field-wrapper">
         <div class="field__title">Tags</div>
@@ -132,6 +163,14 @@
       <!-- btn -->
       <div class="modal__btns">
         <FancyButton :fn="() => {performCreate()}">Perform create</FancyButton>
+
+
+
+        <div class="record-type-switcher">  
+          [<span :class="clsx('_typed', recordType=='TYPED' && '_current')" @click="recordType='TYPED'">typed_record</span>
+          |
+          <span :class="clsx('_raw', recordType=='RAW' && '_current')" @click="recordType='RAW'">raw_record</span>]
+        </div>
       </div>
       
 
@@ -207,7 +246,11 @@
     font-size: inherit;
     margin-top: 5px;
   }
-  .field__tags-input {
+  ._tags-info {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .field__tags-input, .field__raw-content-input {
     width: 100%;
     width: 100%;
     padding: 2px;
@@ -217,9 +260,8 @@
     font-family: inherit;
     margin-top: 5px;
   }
-  ._tags-info {
-    font-size: 14px;
-    margin-top: 4px;
+  .field__raw-content-input {
+    height: 190px;
   }
 
 
@@ -229,6 +271,21 @@
     gap: 15px;
 
     margin-top: 30px;
+  }
+
+
+
+  .record-type-switcher {
+    ._typed, ._raw {
+      cursor: pointer;
+    }
+    ._typed:hover, ._raw:hover {
+      text-decoration: underline;
+    }
+    ._current {
+      color: var(--text-color-2);
+      text-decoration: underline;
+    }
   }
 
 

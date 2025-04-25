@@ -7,7 +7,7 @@
   ///@ts-ignore
   import MoreSvg from "../../../assets/more.svg"
   
-  import { type PswRecord } from '../../../types/PswRecord'
+  import { type RawPswRecord } from '../../../types/PswRecord'
   import FancyButton from '../../../ui/FancyButton.vue'
   import SpecialText from '../../../ui/SpecialText.vue'
 
@@ -26,7 +26,7 @@
 
 
 
-  const props = defineProps<PswRecord & {idx: number}>()
+  const props = defineProps<RawPswRecord & {idx: number}>()
 
 
 
@@ -53,15 +53,17 @@
     if (showDecoded.value) { _decoded = true }
 
     if (_decoded) {
-      const decoder = new ADecoder() 
+      const decoder = new ADecoder()
+      const decoded_data = decoder.decode(props.raw_content)
+      if (decoded_data.length > 50) {
+        return ["... ... ..."]
+      }
       return [
-        decoder.decode(props.account_name),
-        decoder.decode(props.encoded_login),
-        decoder.decode(props.encoded_password),
+        decoded_data
       ]
 
     } else {
-      return ["<@encoded>", "<@encoded>", "<@encoded>"]
+      return ["<@encoded>"]
     }
   })
 
@@ -87,9 +89,10 @@
   >
     <div class="record__idx">{{ props.idx }}</div>
     <div class="record__app-name" it-scrollable>{{ props.app_name }}</div>
-    <div class="record__name" it-scrollable>{{ renderedFields[0] }}</div>
-    <div class="record__login" it-scrollable>{{ renderedFields[1] }}</div>
-    <div class="record__psw" it-scrollable>{{ renderedFields[2] }}</div>
+    <div class="record__raw-content" it-scrollable>
+      <span style="color: var(--text-color-2)">raw record content: </span>
+      <span style="margin-left: 7px;">{{ renderedFields[0] }}</span>
+    </div>
 
 
 
@@ -138,11 +141,15 @@
 
 <style scoped lang="scss">
 
-  .record__app-name, .record__name, .record__login, .record__psw {
+  .record__app-name, .record__raw-content {
     overflow: auto;
     text-wrap: nowrap;
   }
-
+  .record__raw-content {
+    grid-column: span 3;
+    display: flex;
+    justify-content: center;
+  }
 
 
   .record {

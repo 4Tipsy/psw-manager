@@ -6,9 +6,10 @@
 
   import request, { type ResponseError } from 'superagent'
   import { ref, computed, onMounted } from 'vue'
+  import Color from 'colorjs.io'
 
   import { useModalsStore } from '../../stores/ModalsStore'
-  import { type PswRecord } from '../../types/PswRecord'
+  import { type TypedPswRecord, type RawPswRecord } from '../../types/PswRecord'
   import { ADecoder } from '../../utils/ADecoder'
   import { textToColor } from '../../utils/textToColor'
 
@@ -20,7 +21,7 @@
 
 
 
-  const record = ref<PswRecord|null>(null)
+  const record = ref<TypedPswRecord|RawPswRecord|null>(null)
   const record_reqStatus = ref<'pending'|'ok'|'err'>('pending')
   onMounted(() => {
     request
@@ -57,6 +58,9 @@
   const passwordDecoded = computed(() => {
     return adecoder.decode(record.value!!.encoded_password)
   })
+  const contentDecoded = computed(() => {
+    return adecoder.decode(record.value!!.raw_content)
+  })
 
 
 
@@ -84,6 +88,19 @@
       })
   }
 
+
+
+
+
+  const _borderColor = computed(() => {
+    let c = window.getComputedStyle(document.body).getPropertyValue("--text-color-2")
+    if (c === "") { c = "white" }
+    
+    let color = new Color(c)
+    color.lighten(0.15)
+    return color.toString()
+  })
+
 </script>
 
 
@@ -105,27 +122,29 @@
 
 
     <template v-else>
-      <div class="shading">
-        <div class="modal">
+      <div class="modal">
 
-  
-          <!-- title -->
-          <div class="modal__close" @click="modalsStore.showViewRecordModal = false">
-            [X]
+
+        <!-- title -->
+        <div class="modal__close" @click="modalsStore.showViewRecordModal = false">
+          [X]
+        </div>
+        <div class="modal__title">
+          {{ record!!._record_type == 'RAW' ? 'Raw Record' : 'Record' }} ({{ record!!.record_id }})
+        </div>
+
+
+        <!-- fields -->
+        <div class="field-wrapper">
+          <div class="field__title">
+            <span>App name</span>
           </div>
-          <div class="modal__title">
-            Record ({{ record!!.record_id }})
-          </div>
-  
-  
-          <!-- fields -->
-          <div class="field-wrapper">
-            <div class="field__title">
-              <span>App name</span>
-            </div>
-            <div class="field__value">{{ record!!.app_name }}</div>
-          </div>
-  
+          <div class="field__value">{{ record!!.app_name }}</div>
+        </div>
+
+
+        <template v-if="record!!._record_type == 'TYPED'">
+
           <div class="field-wrapper">
             <div class="field__title">
               <span>Name</span>
@@ -150,35 +169,46 @@
             <div class="field__value">{{ passwordDecoded }}</div>
           </div>
 
+        </template>
+
+        <template v-else-if="record!!._record_type == 'RAW'">
           <div class="field-wrapper">
             <div class="field__title">
-              <span>Created at</span>
+              <span>Raw content (raw text)</span>
             </div>
-            <div class="field__value">{{ record!!.created_at }}</div>
+            <textarea readonly class="field__raw-content-container" :style="`border: 2px dashed ${_borderColor}`">{{ contentDecoded }}</textarea>
           </div>
+        </template>
 
-          <div class="field-wrapper">
-            <div class="field__title">
-              <span>Tags</span>
-            </div>
-            <div class="field__tags-container">
-              <template v-for="tag in record!!.tags">
-                <SpecialText :tcolor="textToColor(tag)">{{tag}}</SpecialText>
-              </template>
-            </div>
+
+        <div class="field-wrapper">
+          <div class="field__title">
+            <span>Created at</span>
           </div>
-  
-
-          <!-- btns -->
-          <div class="btns-section">
-            <FancyButton :fn="() => {modalsStore.showViewRecordModal = false; modalsStore.showPatchRecordModal = record!!.record_id}"
-            >Patch</FancyButton>
-            <FancyButton :fn="() => {deleteRecord()}">Delete</FancyButton>
-          </div>
-
-
-  
+          <div class="field__value">{{ record!!.created_at }}</div>
         </div>
+
+        <div class="field-wrapper">
+          <div class="field__title">
+            <span>Tags</span>
+          </div>
+          <div class="field__tags-container">
+            <template v-for="tag in record!!.tags">
+              <SpecialText :tcolor="textToColor(tag)">{{tag}}</SpecialText>
+            </template>
+          </div>
+        </div>
+
+
+        <!-- btns -->
+        <div class="btns-section">
+          <FancyButton :fn="() => {modalsStore.showViewRecordModal = false; modalsStore.showPatchRecordModal = record!!.record_id}"
+          >Patch</FancyButton>
+          <FancyButton :fn="() => {deleteRecord()}">Delete</FancyButton>
+        </div>
+
+
+
       </div>
     </template>
 
@@ -260,6 +290,21 @@
     gap: 10px;
 
     padding-top: 8px; // -_-
+  }
+
+  .field__raw-content-container {
+    width: 100%;
+    width: 100%;
+    padding: 2px;
+    box-sizing: border-box;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    margin-top: 5px;
+
+    height: 190px;
+    background: transparent;
+    //border: 2px dashed var(--text-color-1);
   }
 
 
