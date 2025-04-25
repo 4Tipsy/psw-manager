@@ -8,7 +8,7 @@
   function _ping() {
     request
       .get( window.API_URL + '/__api__/ping' )
-      .end((err, res) => {
+      .end((_, res) => {
         console.log(res);
       })
   }
