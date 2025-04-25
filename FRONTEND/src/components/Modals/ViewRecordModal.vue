@@ -50,15 +50,19 @@
 
   const adecoder = new ADecoder()
   const nameDecoded = computed(() => {
+    ///@ts-ignore
     return adecoder.decode(record.value!!.account_name)
   })
   const loginDecoded = computed(() => {
+    ///@ts-ignore
     return adecoder.decode(record.value!!.encoded_login)
   })
   const passwordDecoded = computed(() => {
+    ///@ts-ignore
     return adecoder.decode(record.value!!.encoded_password)
   })
   const contentDecoded = computed(() => {
+    ///@ts-ignore
     return adecoder.decode(record.value!!.raw_content)
   })
 
