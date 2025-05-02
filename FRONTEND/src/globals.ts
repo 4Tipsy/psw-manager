@@ -25,7 +25,7 @@ declare global {
 window.LINKS__GH = "https://github.com/4Tipsy"
 window.LINKS__SRC = ""
 window.LINKS__API = ""
-window.LINKS__ADECODER_ABOUT = "https://github.com/4Tipsy"
+window.LINKS__ADECODER_ABOUT = "https://github.com/4Tipsy/psw-manager/blob/master/FRONTEND/ADECODER_ABOUT.md"
 
 window.APP_VERSION = "v2.0.0-ALPHA"
 
