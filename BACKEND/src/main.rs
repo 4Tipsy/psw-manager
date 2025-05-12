@@ -4,7 +4,7 @@ mod config;
 mod models;
 mod routes;
 mod services;
-mod guards;
+mod guards_fairings;
 mod util;
 
 
@@ -24,16 +24,16 @@ use mongodb::{Client, Database};
 use crate::routes::user_routes;
 use crate::routes::psw_record_routes;
 use crate::routes::static_routes;
-use crate::guards::cors_fairing::CorsFairing;
+use crate::guards_fairings::cors_fairing::CorsFairing;
+use crate::guards_fairings::some_headers_fairing::SomeHeadersFairing;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
 use crate::config::{ConfigModel, load_config};
 
 
 
 
-static ACCESS_TOKEN_LIVES: i64 = 24*30;
-//static REFRESH_TOKEN_LIVES: i64 = 24*30;
-
+static ACCESS_TOKEN_LIVES: i64 = 24*30; // 30 days
+static API_VERSION: &str = "2.1.0";
 
 
 
@@ -135,4 +135,5 @@ async fn launch() -> _ {
     .manage(config)
     .manage(mongo)
     .attach(CorsFairing) // set cors
+    .attach(SomeHeadersFairing)
 }

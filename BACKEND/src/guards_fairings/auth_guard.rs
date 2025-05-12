@@ -15,7 +15,7 @@ use chrono;
 
 // modules
 use crate::models::user_model::User;
-use crate::models::tokens_models::AccessToken;
+use crate::models::access_token::AccessToken;
 use crate::config::ConfigModel;
 
 
@@ -67,6 +67,11 @@ impl<'r> FromRequest<'r> for AuthGuard {
           return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
 
+        // check if ip is matching
+        if parsed_token.claims.this_device_ip != req.client_ip().unwrap().to_string() {
+          return Outcome::Error((Status::ProxyAuthenticationRequired, _if_err)); // RETURN
+        }
+
         // check if user exists / is verified
         let user: Option<User> = mongo.collection::<User>("users")
           .find_one(doc! {"user_id": &parsed_token.claims.this_user_id}).await.unwrap();
@@ -74,13 +79,12 @@ impl<'r> FromRequest<'r> for AuthGuard {
         if user.is_none() {
           return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
-
         if user.clone().unwrap().verified == false {
           return Outcome::Error((Status::Unauthorized, _if_err)); // RETURN
         }
 
         // if ok
-        Outcome::Success( AuthGuard {value: user.unwrap()} ) // RETURN ON OK
+        Outcome::Success( AuthGuard {value: user.unwrap()} ) // RETURN IF OK
       },
 
 

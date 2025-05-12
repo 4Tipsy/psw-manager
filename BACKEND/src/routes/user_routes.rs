@@ -10,10 +10,11 @@ use serde::Deserialize;
 use mongodb::Database;
 
 use std::path::PathBuf;
+use std::net::IpAddr;
 
 // modules
 use crate::services::user_service;
-use crate::guards::auth_guard::AuthGuard;
+use crate::guards_fairings::auth_guard::AuthGuard;
 use crate::models::user_model::{NewUserDTO, UserDTO};
 use crate::models::http_exception::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
@@ -97,11 +98,12 @@ pub struct _LoginReq {
 }
 
 #[post("/user-serv/login", data = "<req>")]
-pub async fn login(req: Json<_LoginReq>, jar: &CookieJar<'_>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn login(req: Json<_LoginReq>, _req_ip: IpAddr, jar: &CookieJar<'_>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
 
   let r: Result<String, HttpException> = user_service::get_user_token(
     &req.user_email,
     &req.user_password,
+    &_req_ip.to_string(),
     mongo,
     config
   ).await;

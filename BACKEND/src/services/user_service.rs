@@ -15,7 +15,7 @@ use std::fs;
 
 // modules
 use crate::models::user_model::{User, NewUserDTO, UserDTO};
-use crate::models::tokens_models::{AccessToken};
+use crate::models::access_token::AccessToken;
 use crate::models::http_exception::HttpException;
 use crate::util::gen_simple_hash::gen_simple_hash;
 use crate::util::password_hasher::{hash_psw, verify_psw};
@@ -96,7 +96,7 @@ pub async fn create_new_user(new_user: NewUserDTO, mongo: &State<Database>, conf
 
 
 
-pub async fn get_user_token(user_email: &str, user_password: &str, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<String, HttpException> {
+pub async fn get_user_token(user_email: &str, user_password: &str, req_ip: &str, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<String, HttpException> {
 
   let user_collection = mongo.collection::<User>("users");
 
@@ -126,6 +126,7 @@ pub async fn get_user_token(user_email: &str, user_password: &str, mongo: &State
     this_jwt_epoch: config.jwt_epoch,
     this_jwt_expires_at: should_expire_at.to_rfc2822(),
     this_user_id: user.user_id,
+    this_device_ip: req_ip.to_string(),
   };
 
   let ready_token = jsonwebtoken::encode(

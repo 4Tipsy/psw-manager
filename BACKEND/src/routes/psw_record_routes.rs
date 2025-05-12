@@ -10,7 +10,7 @@ use crate::util::my_either::MyEither as Either;
 
 // modules
 use crate::services::psw_record_service;
-use crate::guards::auth_guard::AuthGuard;
+use crate::guards_fairings::auth_guard::AuthGuard;
 use crate::models::typed_psw_record_model::{TypedPswRecord, NewTypedPswRecordDTO};
 use crate::models::raw_psw_record_model::{RawPswRecord, NewRawPswRecordDTO};
 use crate::models::http_exception::HttpException;

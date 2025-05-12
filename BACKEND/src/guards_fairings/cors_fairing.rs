@@ -4,7 +4,7 @@ use rocket::http::Header;
 use rocket::{Request, Response};
 use rocket::fairing::{Fairing, Info, Kind};
 
-// models
+// modules
 use crate::config::ConfigModel;
 
 
