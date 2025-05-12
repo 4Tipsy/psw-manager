@@ -1,8 +1,10 @@
 
 use rocket::async_trait;
 use rocket::http::Header;
-use rocket::{Request, Response};
+use rocket::{Request, Response, Data};
 use rocket::fairing::{Fairing, Info, Kind};
+
+use std::panic;
 
 // modules
 use crate::API_VERSION;
@@ -19,11 +21,26 @@ impl Fairing for SomeHeadersFairing {
   fn info(&self) -> Info {
     Info {
       name: "Add some headers",
-      kind: Kind::Response
+      kind: Kind::Request | Kind::Response
     }
   }
 
 
+
+
+  /* if ip header */
+  async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
+
+    if req.headers().contains("X-Real-IP") {
+      // will abort request to avoid ip spoofing
+      panic!("X-Real-IP header is not allowed");
+    }
+  }
+
+
+
+
+  /* add some headers */
   async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
 
     let req_ip: String = match req.client_ip() {
