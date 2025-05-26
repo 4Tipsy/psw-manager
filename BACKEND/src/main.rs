@@ -119,6 +119,7 @@ async fn launch() -> _ {
       Figment::new()
       .join(("port", &config.port)) // set port
       .join(("address", &config.address)) // set address
+      .join(("ip_header", false)) // disable ip header
     ))
     .mount("/",
       FileServer::new(&config.client_static_path, FileServerOptions::Index) // client static

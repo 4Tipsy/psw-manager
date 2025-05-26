@@ -4,7 +4,7 @@
   import FancyButton from '../../ui/FancyButton.vue'
 
   import request, { type ResponseError } from 'superagent'
-  import { defineProps, ref } from 'vue'
+  import { defineProps, ref, onMounted, onUnmounted } from 'vue'
 
 
   const props = defineProps<{
@@ -16,6 +16,22 @@
   const emailInput = ref("")
   const passwordInput = ref("")
   const fetchResult = ref("")
+
+
+
+
+  // close on Esc
+  function handleEsc(e: KeyboardEvent) {
+    if (e.key == 'Escape') {
+      props.untriggerShow()
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', handleEsc)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc)
+  })
 
 
 
@@ -73,14 +89,14 @@
         <div class="input__text">
           Email
         </div>
-        <input type="text" class="input__input" v-model="emailInput">
+        <input type="text" class="input__input" v-model="emailInput" @keyup.enter.prevent="performFetchLogin">
       </div>
 
       <div class="input-wrapper">
         <div class="input__text">
           Password
         </div>
-        <input type="password" class="input__input" v-model="passwordInput">
+        <input type="password" class="input__input" v-model="passwordInput" @keyup.enter.prevent="performFetchLogin">
       </div>
 
 

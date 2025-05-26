@@ -27,7 +27,7 @@ window.LINKS__SRC = ""
 window.LINKS__API = ""
 window.LINKS__ADECODER_ABOUT = "https://github.com/4Tipsy/psw-manager/blob/master/FRONTEND/ADECODER_ABOUT.md"
 
-window.APP_VERSION = "v2.0.0-ALPHA"
+window.APP_VERSION = "v2.1.1"
 
 window.API_URL = "http://localhost:4321"
 

@@ -6,7 +6,7 @@
   import { ADecoder } from '../../utils/ADecoder'
 
   import request, { type ResponseError } from 'superagent'
-  import { ref } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import clsx from 'clsx'
 
 
@@ -24,6 +24,23 @@
   const rawContentInput = ref('')
 
   const reqResult = ref('')
+
+
+
+  // close on Esc
+  function handleEsc(e: KeyboardEvent) {
+    if (e.key == 'Escape') {
+      modalsStore.showCreateNewRecordModal = false
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', handleEsc)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc)
+  })
+
+
 
 
 

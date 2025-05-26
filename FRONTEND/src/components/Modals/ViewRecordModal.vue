@@ -3,9 +3,10 @@
 
   import SpecialText from '../../ui/SpecialText.vue'
   import FancyButton from '../../ui/FancyButton.vue'
+  import CopyButton from '../../ui/CopyButton.vue'
 
   import request, { type ResponseError } from 'superagent'
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted } from 'vue'
   import Color from 'colorjs.io'
 
   import { useModalsStore } from '../../stores/ModalsStore'
@@ -16,6 +17,25 @@
 
 
   const modalsStore = useModalsStore()
+
+
+
+
+
+
+  // close on Esc
+  function handleEsc(e: KeyboardEvent) {
+    if (e.key == 'Escape') {
+      modalsStore.showViewRecordModal = false
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', handleEsc)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc)
+  })
+
 
 
 
@@ -36,14 +56,6 @@
         record_reqStatus.value = 'err'
       })
   })
-
-
-
-
-
-  function copyIt(text: string) {
-    navigator.clipboard.writeText(text)
-  }
 
 
 
@@ -152,7 +164,7 @@
           <div class="field-wrapper">
             <div class="field__title">
               <span>Name</span>
-              <button @click="copyIt(nameDecoded)">[copy]</button>
+              <CopyButton :text="nameDecoded" />
             </div>
             <div class="field__value">{{ nameDecoded }}</div>
           </div>
@@ -160,7 +172,7 @@
           <div class="field-wrapper">
             <div class="field__title">
               <span>Login</span>
-              <button @click="copyIt(loginDecoded)">[copy]</button>
+              <CopyButton :text="loginDecoded" />
             </div>
             <div class="field__value">{{ loginDecoded }}</div>
           </div>
@@ -168,7 +180,7 @@
           <div class="field-wrapper">
             <div class="field__title">
               <span>Password</span>
-              <button @click="copyIt(passwordDecoded)">[copy]</button>
+              <CopyButton :text="passwordDecoded" />
             </div>
             <div class="field__value">{{ passwordDecoded }}</div>
           </div>

@@ -37,7 +37,7 @@ ${JSON.stringify(decodedRecords, null, 2)}
 
   // trigger download
   let a = document.createElement('a')
-  a.download = 'records.json' // file name
+  a.download = 'records.json5' // file name
   a.href = URL.createObjectURL(new Blob([text]))
   a.style.display = 'none'
   a.click()

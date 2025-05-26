@@ -6,8 +6,9 @@
   import TypedRecord from './TypedRecord.vue';
   import RawRecord from './RawRecord.vue';
 
-  import { defineProps, computed, type ComputedRef } from 'vue'
+  import { defineProps, computed, ref, type ComputedRef } from 'vue'
   import Color from 'colorjs.io'
+  import clsx from 'clsx'
 
   // modules
   import { useRecordsStore } from '../../../stores/RecordsStore';
@@ -61,6 +62,35 @@
 
 
 
+
+
+  // scroll indicators
+  const _scrollableElRef = ref<HTMLElement | null>(null)
+  const _scrollableIndicatorTrigger = ref(false)
+  const scrollableIndicator: ComputedRef<string | null> = computed(() => {
+
+    _scrollableIndicatorTrigger.value
+    let el = _scrollableElRef.value
+    let classes: string[] = []
+
+    // if no element
+    if (el == null) {
+      return null
+    }
+    // can scroll down
+    if (el.scrollTop + el.clientHeight < el.scrollHeight) {
+      classes.push("_scrollable-down")
+    }
+    // can scroll up
+    if (el.scrollTop > 0) {
+      classes.push("_scrollable-up")
+    }
+
+    return classes.join(' ')
+  })
+
+
+
 </script>
 
 
@@ -71,8 +101,8 @@
 <template>
 
   
-  <div class="records-table-wrapper">
-  <div class="records-table" it-scrollable>
+  <div :class='clsx("records-table-wrapper", scrollableIndicator)'>
+  <div class="records-table" it-scrollable ref="_scrollableElRef" @scroll="_scrollableIndicatorTrigger = !_scrollableIndicatorTrigger; console.log('scroll')">
 
 
 
@@ -155,6 +185,30 @@
 
 
 <style scoped lang="scss">
+
+
+  // .records-table-wrapper 
+  ._scrollable-up::before, ._scrollable-down::after {
+    content: '';
+    position: absolute;
+    opacity: 0.7;
+    background-color: var(--highlight-color-1);
+    border-radius: 99px;
+    height: 7px;
+
+    width: calc(100% - 80px);
+
+    left: 50%; // center me
+    transform: translate(-50%, 0); // center me
+    margin: 4px 0;
+  }
+  ._scrollable-up::before {
+    top: 0;
+  }
+  ._scrollable-down::after {
+    bottom: 0;
+  }
+
 
 
   .records-table-wrapper {

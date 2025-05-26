@@ -3,7 +3,7 @@
 
   import FancyButton from '../../ui/FancyButton.vue'
 
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import request, { type ResponseError } from 'superagent'
 
   import { useModalsStore } from '../../stores/ModalsStore'
@@ -11,6 +11,24 @@
 
 
   const modalsStore = useModalsStore()
+
+
+
+
+  // close on Esc
+  function handleEsc(e: KeyboardEvent) {
+    if (e.key == 'Escape') {
+      modalsStore.showPatchRecordModal = false
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', handleEsc)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc)
+  })
+
+
 
 
 

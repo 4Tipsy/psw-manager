@@ -10,6 +10,7 @@
   import ViewRecordModal from "../Modals/ViewRecordModal.vue"
   import PatchRecordModal from "../Modals/PatchRecordModal.vue"
   import CreateNewRecordModal from "../Modals/CreateNewRecordModal.vue"
+  import ImportMultipleRecordsModal from "../Modals/ImportMultipleRecordsModal.vue"
 
   import { useRecordsStore } from "../../stores/RecordsStore"
   import { useIsDecodeAll } from "../../stores/IsDecodeAll"
@@ -161,6 +162,9 @@
       </template>
       <template v-if="modalsStore.showCreateNewRecordModal">
         <CreateNewRecordModal/>
+      </template>
+      <template v-if="modalsStore.showImportMultipleRecordsModal">
+        <ImportMultipleRecordsModal/>
       </template>
 
 

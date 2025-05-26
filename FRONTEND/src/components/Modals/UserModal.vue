@@ -6,13 +6,16 @@
 
   import request, { type ResponseError } from "superagent"
   import Cookies from "js-cookie"
+  import Color from "colorjs.io"
 
   import FancyButton from "../../ui/FancyButton.vue"
+  import SpecialText from "../../ui/SpecialText.vue"
   import { useModalsStore } from "../../stores/ModalsStore"
   import { useUserStore } from "../../stores/UserStore"
   import { useRecordsStore } from "../../stores/RecordsStore"
 
-  import { ref, computed } from "vue"
+  import { ref, computed, type ComputedRef } from "vue"
+  import { onMounted, onUnmounted } from "vue"
 
   import { downloadRecords } from "../../utils/downloadRecords"
 
@@ -24,6 +27,26 @@
   const modalsStore = useModalsStore()
   const userStore = useUserStore()
   const recordsStore = useRecordsStore()
+
+
+
+
+
+  // close on Esc
+  function handleEsc(e: KeyboardEvent) {
+    if (e.key == 'Escape') {
+      modalsStore.showUserModal = false
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', handleEsc)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc)
+  })
+
+
+
 
 
 
@@ -71,6 +94,12 @@
       )
     }
   }
+  function handleImportMultipleRecords() {
+    if (confirm("This is extremely experimental feature. Do you want to continue?")) {
+      modalsStore.showUserModal = false
+      modalsStore.showImportMultipleRecordsModal = true
+    }
+  }
 
   
 
@@ -104,6 +133,18 @@
 
 
 
+
+
+
+  const userNameColor: ComputedRef<string> = computed(() => {
+
+    let c = window.getComputedStyle(document.body).getPropertyValue("--text-color-1")
+    if (c === "") { c = "white" }
+    let color = new Color(c)
+    color.darken(0.05)
+    return color.toString()
+  })
+
   const adecoderAboutSrc = window.LINKS__ADECODER_ABOUT
 
 </script>
@@ -130,7 +171,11 @@
           <img class="avatar" :src="userImgUrl" alt="avatar">
           <input class="avatar__input" type="file" ref="updateUserImgRef" @change="handleUpdateUserImg()"/>
         </div>
-        <div class="user-name">{{ userStore.user!!.user_name }}</div>
+        <div class="user-name">
+          <SpecialText :tcolor="userNameColor">
+            {{ userStore.user!!.user_name }}
+          </SpecialText>
+        </div>
         <div class="user-email">email: {{ userStore.user!!.user_email }}</div>
         <div class="user-id">id: {{ userStore.user!!.user_id }}</div>
       </div>
@@ -151,6 +196,7 @@
 
       <div class="modal__btns">
         <FancyButton :fn="handleDownloadRecords">Download records</FancyButton>
+        <FancyButton :fn="handleImportMultipleRecords">Import multiple records</FancyButton>
         <FancyButton :fn="handleLogout">Log out</FancyButton>
       </div>
 
@@ -237,6 +283,7 @@
   }
   .user-name {
     font-size: 20px;
+    display: flex;
   }
   .user-email {
     font-size: 20px;
