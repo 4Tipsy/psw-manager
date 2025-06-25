@@ -34,7 +34,7 @@ use crate::config::{ConfigModel, load_config};
 
 
 static ACCESS_TOKEN_LIVES: i64 = 24*30; // 30 days
-static API_VERSION: &str = "2.1.0";
+static API_VERSION: &str = "2.2.0";
 
 
 
