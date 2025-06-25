@@ -26,20 +26,6 @@ impl Fairing for SomeHeadersFairing {
   }
 
 
-
-
-  /* if ip header */
-  async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
-
-    if req.headers().contains("X-Real-IP") {
-      // will abort request to avoid ip spoofing
-      panic!("X-Real-IP header is not allowed");
-    }
-  }
-
-
-
-
   /* add some headers */
   async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
 
@@ -53,6 +39,6 @@ impl Fairing for SomeHeadersFairing {
 
     // set headers
     res.set_header(Header::new("X-Api-Version", api_version_str));
-    res.set_header(Header::new("X-Your-Ip", req_ip));
+    res.set_header(Header::new("X-Your-Consumed-Ip", req_ip));
   }
 }
