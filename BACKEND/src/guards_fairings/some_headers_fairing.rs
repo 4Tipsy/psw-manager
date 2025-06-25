@@ -1,10 +1,8 @@
 
 use rocket::async_trait;
 use rocket::http::Header;
-use rocket::{Request, Response, Data};
+use rocket::{Request, Response};
 use rocket::fairing::{Fairing, Info, Kind};
-
-use std::panic;
 
 // modules
 use crate::API_VERSION;
