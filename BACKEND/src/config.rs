@@ -22,6 +22,7 @@ pub struct ConfigModel {
   pub cors_allowed_hosts: Vec<String>,
 
   pub client_static_path: String,
+  pub _login_rate_limit: u32,
 }
 
 

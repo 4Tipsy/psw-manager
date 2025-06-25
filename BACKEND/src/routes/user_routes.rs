@@ -1,6 +1,6 @@
 
 use rocket::{get, post, State};
-use rocket::http::{Cookie, CookieJar, Status};
+use rocket::http::{Cookie, CookieJar, SameSite, Status};
 use rocket::time::Duration;
 use rocket::serde::json::{json, Json, to_value as to_json_value};
 use rocket::fs::{TempFile, NamedFile};
@@ -18,6 +18,7 @@ use crate::guards_fairings::auth_guard::AuthGuard;
 use crate::models::user_model::{NewUserDTO, UserDTO};
 use crate::models::http_exception::HttpException;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
+use crate::util::rate_limiter::RateLimiter;
 use crate::config::ConfigModel;
 use crate::ACCESS_TOKEN_LIVES;
 
@@ -98,7 +99,16 @@ pub struct _LoginReq {
 }
 
 #[post("/user-serv/login", data = "<req>")]
-pub async fn login(req: Json<_LoginReq>, _req_ip: IpAddr, jar: &CookieJar<'_>, mongo: &State<Database>, config: &State<ConfigModel>) -> Result<ApiTextResponse, ApiJsonResponse> {
+pub async fn login(req: Json<_LoginReq>, _req_ip: IpAddr, jar: &CookieJar<'_>, mongo: &State<Database>, config: &State<ConfigModel>, rate_limiter: &State<RateLimiter>) -> Result<ApiTextResponse, ApiJsonResponse> {
+
+  // rate limiter!
+  if let Err(_) = rate_limiter.login.check_key(&_req_ip) {
+    return Err( ApiJsonResponse {
+      value: json!({"err": "Too many requests, limited!"}),
+      status: Status::TooManyRequests
+    });
+  };
+  
 
   let r: Result<String, HttpException> = user_service::get_user_token(
     &req.user_email,
@@ -111,9 +121,13 @@ pub async fn login(req: Json<_LoginReq>, _req_ip: IpAddr, jar: &CookieJar<'_>, m
   match r {
     Ok(access_token) => {
 
+      // add response cookie
       let access_cookie = Cookie
         ::build(("psw-manager.access_token", access_token))
-        .max_age(Duration::days(ACCESS_TOKEN_LIVES));
+        .max_age(Duration::days(ACCESS_TOKEN_LIVES))
+        .http_only(true)
+        .same_site(SameSite::Strict)
+        .secure(true);
 
       jar.add(access_cookie);
 

@@ -1,6 +1,6 @@
 [package]
 name = "psw-manager-api"
-version = "2.1.0"
+version = "2.2.0"
 edition = "2021"
 
 [dependencies]
@@ -8,6 +8,7 @@ bcrypt = "0.16.0"
 chrono = "0.4.39"
 either = { version = "1.15.0", features = ["serde"] }
 futures = "0.3.31"
+governor = "0.10.0"
 jsonwebtoken = "9.3.0"
 mongodb = "3.1.1"
 rand = "0.8.5"

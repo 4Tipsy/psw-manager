@@ -13,3 +13,4 @@ cors_allowed_hosts:
 
 
 client_static_path: "/some/path"
+_login_rate_limit: 5 # per ip # per hour

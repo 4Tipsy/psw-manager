@@ -27,6 +27,7 @@ use crate::routes::static_routes;
 use crate::guards_fairings::cors_fairing::CorsFairing;
 use crate::guards_fairings::some_headers_fairing::SomeHeadersFairing;
 use crate::util::api_responses::{ApiJsonResponse, ApiTextResponse};
+use crate::util::rate_limiter::RateLimiter;
 use crate::config::{ConfigModel, load_config};
 
 
@@ -133,6 +134,7 @@ async fn launch() -> _ {
     .register("/", catchers![
       handle_404, handle_422, handle_500, handle_401__auth_guard__
     ])
+    .manage(RateLimiter::init(&config._login_rate_limit))
     .manage(config)
     .manage(mongo)
     .attach(CorsFairing) // set cors
